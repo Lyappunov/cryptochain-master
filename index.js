@@ -12,6 +12,7 @@ const isDevelopment = process.env.ENV === 'development';
 
 const REDIS_URL = isDevelopment? 'redis://127.0.0.1:6379':
   'redis://h:p05f9a274bd0e2414e52cb9516f8cbcead154d7d61502d32d9750180836a7cc05@ec2-34-225-229-4.compute-1.amazonaws.com:19289';
+  // const REDIS_URL = 'redis://127.0.0.1:6379';
 const DEFAULT_PORT = 8000;
 const ROOT_NODE_ADDRESS = isDevelopment? `http://localhost:${DEFAULT_PORT}`:`https://dry-forest-93127.herokuapp.com/` ;
 // const ROOT_NODE_ADDRESS = `https://thawing-tundra-11851.herokuapp.com`;
