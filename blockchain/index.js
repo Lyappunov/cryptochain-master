@@ -39,7 +39,30 @@ class Blockchain {
     this.chain = chain;
   }
 
+  static getInputAddressArray({ chain }){
+    var input_address_array = [];
+    for (let i=chain.length-1; i>0; i--){
+      const block = chain[i];
+      for (let transaction of block.data) {
+        var index = input_address_array.findIndex(item => item === transaction.input.address)
+        if(index === -1){
+          input_address_array.push(transaction.input.address)
+        }
+      }
+    }
+    return input_address_array;
+  }
+
   validTransactionData({ chain }) {
+    let input_address_array = this.getInputAddressArray({ chain });
+    var begin_reward = MINING_REWARD;
+    let myReward
+    if (input_address_array.length == 0) myReward = begin_reward;
+    else if (input_address_array.length >0 && input_address_array.length<= 10) myReward = parseInt(begin_reward/2);
+    else if (input_address_array.length >10 && input_address_array.length<= 100) myReward = parseInt(begin_reward/2**2);
+    else if (input_address_array.length >100 && input_address_array.length<= 500) myReward = parseInt(begin_reward/2**3);
+    else if (input_address_array.length >500 && input_address_array.length<= 1000) myReward = parseInt(begin_reward/2**4);
+
     for (let i=1; i<chain.length; i++) {
       const block = chain[i];
       const transactionSet = new Set();
@@ -54,7 +77,7 @@ class Blockchain {
             return false;
           }
 
-          if (Object.values(transaction.outputMap)[0] !== MINING_REWARD) {
+          if (Object.values(transaction.outputMap)[0] !== myReward) {
             console.error('Miner reward amount is invalid');
             return false;
           }

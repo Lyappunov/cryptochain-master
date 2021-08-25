@@ -18,6 +18,7 @@ class Block extends Component {
       `${stringifiedData.substring(0, 35)}...` :
       stringifiedData;
 
+    console.log('here is data///', data)
     if (this.state.displayTransaction) {
       return (
         <div>

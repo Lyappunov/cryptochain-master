@@ -37,6 +37,7 @@ class ConductTransaction extends Component {
   }
 
   render() {
+    console.log('here are known address:', this.state.knownAddresses)
     return (
       <div className='ConductTransaction'>
         <Link to='/'>Home</Link>

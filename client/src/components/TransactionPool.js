@@ -45,6 +45,7 @@ class TransactionPool extends Component {
   }
 
   render() {
+    console.log('here are some transaction Pools :// ', this.state.transactionPoolMap)
     return (
       <div className='TransactionPool'>
         <div><Link to='/'>Home</Link></div>
