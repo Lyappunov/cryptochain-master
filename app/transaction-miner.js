@@ -1,5 +1,5 @@
 const Transaction = require('../wallet/transaction');
-const {MINING_REWARD } = require('../config');
+const {MINING_REWARD, CIRCULATION_LIMIT } = require('../config');
 
 class TransactionMiner {
   constructor({ blockchain, transactionPool, wallet, pubsub }) {
@@ -9,52 +9,61 @@ class TransactionMiner {
     this.pubsub = pubsub;
   }
 
-  static getInputAddressArray({ chain }){
-    var input_address_array = [];
+  getMinedTokenSum({chain}){
+    var MinedTokenSum = 0;
     for (let i=chain.length-1; i>0; i--){
       const block = chain[i];
       for (let transaction of block.data) {
-        var index = input_address_array.findIndex(item => item === transaction.input.address)
-        if(index === -1){
-          input_address_array.push(transaction.input.address)
-        }
+        var recipients = Object.keys(transaction.outputMap)
+        MinedTokenSum = MinedTokenSum + transaction.outputMap[recipients[0]];
       }
     }
-    return input_address_array;
+    return MinedTokenSum;
   }
 
   mineTransactions() {
     let chain =  this.blockchain.chain;
-
-    var input_address_array = [];
+    var MinedTokenSum = 0;
     for (let i=chain.length-1; i>0; i--){
       const block = chain[i];
-      for (let transaction of block.data) {
-        var index = input_address_array.findIndex(item => item === transaction.input.address)
-        if(index === -1){
-          input_address_array.push(transaction.input.address)
-        }
-      }
+      let transaction = block.data[0]
+        var recipients = Object.keys(transaction.outputMap)
+        MinedTokenSum = MinedTokenSum + transaction.outputMap[recipients[0]];
+      
     }
 
-    var begin_reward = MINING_REWARD;
-    let myReward
-    if (input_address_array.length == 0) myReward = begin_reward;
-    else if (input_address_array.length >0 && input_address_array.length<= 10) myReward = parseInt(begin_reward/2);
-    else if (input_address_array.length >10 && input_address_array.length<= 100) myReward = parseInt(begin_reward/2**2);
-    else if (input_address_array.length >100 && input_address_array.length<= 500) myReward = parseInt(begin_reward/2**3);
-    else if (input_address_array.length >500 && input_address_array.length<= 1000) myReward = parseInt(begin_reward/2**4);
-    const validTransactions = this.transactionPool.validTransactions();
+    if(MinedTokenSum <= CIRCULATION_LIMIT){
 
-    validTransactions.push(
-      Transaction.rewardTransaction({ minerWallet: this.wallet, miningReward: myReward})
-    );
+      var input_address_array = [];
+      for (let i=chain.length-1; i>0; i--){
+        const block = chain[i];
+        for (let transaction of block.data) {
+          var index = input_address_array.findIndex(item => item === transaction.input.address)
+          if(index === -1){
+            input_address_array.push(transaction.input.address)
+          }
+        }
+      }
 
-    this.blockchain.addBlock({ data: validTransactions });
+      var begin_reward = MINING_REWARD;
+      let myReward
+      if (input_address_array.length == 0) myReward = begin_reward;
+      else if (input_address_array.length >0 && input_address_array.length<= 10) myReward = parseInt(begin_reward/2);
+      else if (input_address_array.length >10 && input_address_array.length<= 100) myReward = parseInt(begin_reward/2**2);
+      else if (input_address_array.length >100 && input_address_array.length<= 500) myReward = parseInt(begin_reward/2**3);
+      else if (input_address_array.length >500 && input_address_array.length<= 1000) myReward = parseInt(begin_reward/2**4);
+      const validTransactions = this.transactionPool.validTransactions();
 
-    this.pubsub.broadcastChain();
+      validTransactions.push(
+        Transaction.rewardTransaction({ minerWallet: this.wallet, miningReward: myReward})
+      );
 
-    this.transactionPool.clear();
+      this.blockchain.addBlock({ data: validTransactions });
+
+      this.pubsub.broadcastChain();
+
+      this.transactionPool.clear();
+    }
   }
 }
 

@@ -5,9 +5,10 @@ import { Link } from 'react-router-dom';
 import history from '../history';
 
 const POLL_INERVAL_MS = 10000;
+const CIRCULATION_LIMIT = 21000000;
 
 class TransactionPool extends Component {
-  state = { transactionPoolMap: {} };
+  state = { transactionPoolMap: {}, disabled:'' };
 
   fetchTransactionPoolMap = () => {
     fetch(`${document.location.origin}/api/transaction-pool-map`)
@@ -15,7 +16,10 @@ class TransactionPool extends Component {
     
     // fetch(`https://5147f5637edc.ngrok.io/api/transaction-pool-map`)
       .then(response => response.json())
-      .then(json => this.setState({ transactionPoolMap: json }));
+      .then(json => {
+        this.setState({ transactionPoolMap: json });
+        this.getMindedTokenSums();
+      });
   }
 
   fetchMineTransactions = () => {
@@ -29,6 +33,16 @@ class TransactionPool extends Component {
           alert('The mine-transactions block request did not complete.');
         }
       });
+  }
+
+  getMindedTokenSums = () => {
+    fetch(`${document.location.origin}/api/mined-token-sum`)
+    // fetch(`http://localhost:3000/api/mine-transactions`)
+    .then(response => response.json())
+    .then(json => {
+      console.log('mined token sums are ', json);
+      if(json>POLL_INERVAL_MS) this.setState({disabled:'disabled'})
+    });
   }
 
   componentDidMount() {
@@ -64,9 +78,11 @@ class TransactionPool extends Component {
         <Button
           bsStyle="danger"
           onClick={this.fetchMineTransactions}
+          disabled = {this.state.disabled}
         >
           Mine the Transactions
         </Button>
+        
       </div>
     )
   }

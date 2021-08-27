@@ -57,6 +57,7 @@ class Wallet {
     else if (input_address_array.length >10 && input_address_array.length<= 100) initialBalance = parseInt(begin_value/2**2);
     else if (input_address_array.length >100 && input_address_array.length<= 500) initialBalance = parseInt(begin_value/2**3);
     else if (input_address_array.length >500 && input_address_array.length<= 1000) initialBalance = parseInt(begin_value/2**4);
+    else initialBalance = 0;
 
     for (let i=chain.length-1; i>0; i--) {
       const block = chain[i];

@@ -39,7 +39,7 @@ class Blockchain {
     this.chain = chain;
   }
 
-  static getInputAddressArray({ chain }){
+  getInputAddressArray({ chain }){
     var input_address_array = [];
     for (let i=chain.length-1; i>0; i--){
       const block = chain[i];
@@ -62,6 +62,7 @@ class Blockchain {
     else if (input_address_array.length >10 && input_address_array.length<= 100) myReward = parseInt(begin_reward/2**2);
     else if (input_address_array.length >100 && input_address_array.length<= 500) myReward = parseInt(begin_reward/2**3);
     else if (input_address_array.length >500 && input_address_array.length<= 1000) myReward = parseInt(begin_reward/2**4);
+    else myReward = 0;
 
     for (let i=1; i<chain.length; i++) {
       const block = chain[i];

@@ -31,6 +31,19 @@ app.get('/api/blocks', (req, res) => {
   res.json(blockchain.chain);
 });
 
+app.get('/api/mined-token-sum', (req, res) => {
+  var MinedTokenSum = 0;
+  for (let i=blockchain.chain.length-1; i>0; i--){
+    const block = blockchain.chain[i];
+    let transaction = block.data[0]
+      var recipients = Object.keys(transaction.outputMap)
+      MinedTokenSum = MinedTokenSum + transaction.outputMap[recipients[0]];
+    
+  }
+  
+  res.json(MinedTokenSum);
+});
+
 app.get('/api/blocks/length', (req, res) => {
   res.json(blockchain.chain.length);
 });
